@@ -1,7 +1,9 @@
 use eframe::{run_native, App, NativeOptions};
 use egui::{CentralPanel, SidePanel, TopBottomPanel};
 
-struct Snap;
+mod center_widget;
+mod footer;
+mod header;
 
 fn main() -> Result<(), eframe::Error> {
     let native_options = NativeOptions {
@@ -16,28 +18,44 @@ fn main() -> Result<(), eframe::Error> {
     )
 }
 
+struct Snap {
+    header: header::Widget,
+    footer: footer::Widget,
+}
+
 impl Default for Snap {
     fn default() -> Self {
-        Self {}
+        Self {
+            footer: footer::Widget::new(),
+            header: header::Widget::new(),
+        }
     }
 }
 
 impl App for Snap {
-    fn update(&mut self, ctx: &eframe::egui::Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
         TopBottomPanel::top("top_panel")
             .exact_height(64.0)
+            .show_separator_line(false)
             .show(ctx, |ui| {
-                ui.label("top");
+                ui.centered_and_justified(|ui| {
+                    self.header.update(ui);
+                })
             });
 
         TopBottomPanel::bottom("bottom_panel")
             .exact_height(64.0)
+            .show_separator_line(false)
             .show(ctx, |ui| {
-                ui.label("bottom");
+                ui.centered_and_justified(|ui| {
+                    // ui.set_min_width(ui.available_width());
+                    self.footer.update(ui);
+                })
             });
 
         SidePanel::left("left_panel")
             .exact_width(64.0)
+            .show_separator_line(false)
             .show(ctx, |ui| ui.label("left"));
 
         CentralPanel::default().show(ctx, |ui| ui.label("center"));
