@@ -1,40 +1,55 @@
-use crate::center_widget;
+use egui::{Button, Color32};
 
-//everything is handled by this struct
+use crate::{center_widget, palette::Palette};
+
 pub struct Widget {
     center_widget: center_widget::Widget,
+    palette: Palette,
 }
 
-//our methods for it
 impl Widget {
     pub fn new() -> Self {
         Self {
             center_widget: center_widget::Widget::new(),
+            palette: Palette::new(),
         }
     }
 
     pub fn update(&mut self, ui: &mut egui::Ui) {
         self.center_widget.update(ui, |ui| {
+            let color_button = |title: &str, color: Color32| {
+                Button::new(title)
+                    .fill(color)
+                    .min_size(egui::Vec2 { x: 48.0, y: 48.0 })
+            };
+
             ui.centered_and_justified(|ui| {
                 ui.horizontal(|ui| {
-                    ui.horizontal(|ui| {
-                        ui.label("button1");
-                        ui.label("button2");
-                    });
+                    for i in vec!["🖊️", "✒️", "✏️"] {
+                        if ui.add(color_button(i, Color32::from_gray(8))).clicked() {
+                            println!("Tool {}  chosen", i);
+                        }
+                    }
 
                     ui.separator();
 
-                    ui.horizontal(|ui| {
-                        ui.label("button3");
-                        ui.label("button4");
-                    });
+                    for i in 0..10 {
+                        let id = format!("");
+                        let color = self.palette.get_color(i).unwrap();
+                        if ui.add(color_button(&id, color)).clicked() {
+                            println!("Picked colour {}", i)
+                        }
+
+                        if i % 2 == 1 {
+                            ui.add_space(8.0)
+                        }
+                    }
 
                     ui.separator();
 
-                    ui.horizontal(|ui| {
-                        ui.label("button5");
-                        ui.label("button6");
-                    });
+                    if ui.add(color_button("E", Color32::from_gray(8))).clicked() {
+                        println!("Erasor chosen");
+                    }
                 });
             });
         })

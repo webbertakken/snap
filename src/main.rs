@@ -4,6 +4,7 @@ use egui::{CentralPanel, SidePanel, TopBottomPanel};
 mod center_widget;
 mod footer;
 mod header;
+mod palette;
 
 fn main() -> Result<(), eframe::Error> {
     let native_options = NativeOptions {
