@@ -41,19 +41,28 @@ impl Snap {
     }
 
     fn configure_fonts(&self, ctx: &Context) {
-        let mut font_def = FontDefinitions::default();
-        font_def.font_data.insert(
-            "MesloLGM".to_string(),
+        let mut fonts = FontDefinitions::default();
+
+        fonts.font_data.insert(
+            "MesloLGM".to_owned(),
             FontData::from_static(include_bytes!("../assets/MesloLGM.ttf")),
         );
 
-        font_def
+        // Set first proportional font
+        fonts
             .families
-            .get_mut(&FontFamily::Monospace)
-            .unwrap()
-            .insert(0, "MesloLGM".to_string());
+            .entry(FontFamily::Proportional)
+            .or_default()
+            .insert(0, "MesloLGM".to_owned());
 
-        ctx.set_fonts(font_def);
+        // Set first monospaced font
+        fonts
+            .families
+            .entry(FontFamily::Monospace)
+            .or_default()
+            .insert(0, "MesloLGM".to_owned());
+
+        ctx.set_fonts(fonts);
     }
 }
 
