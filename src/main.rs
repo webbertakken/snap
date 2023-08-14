@@ -3,6 +3,7 @@ use egui::{
     CentralPanel, Context, FontData, FontDefinitions, FontFamily, SidePanel, TopBottomPanel,
 };
 
+mod canvas;
 mod center_widget;
 mod footer;
 mod header;
@@ -21,16 +22,31 @@ fn main() -> Result<(), eframe::Error> {
     )
 }
 
+pub trait Widget {
+    /// `&'static` so we can also use it as a key to store open/close state.
+    fn name(&self) -> &'static str;
+
+    /// Show windows, etc
+    fn show(&mut self, ctx: &egui::Context);
+}
+
+pub trait View {
+    /// Render something
+    fn render(&mut self, ui: &mut egui::Ui);
+}
+
 struct Snap {
-    header: header::Widget,
-    footer: footer::Widget,
+    header: header::Header,
+    canvas: canvas::Canvas,
+    footer: footer::Footer,
 }
 
 impl Snap {
     pub fn new() -> Self {
         Self {
-            footer: footer::Widget::new(),
-            header: header::Widget::new(),
+            footer: footer::Footer::new(),
+            canvas: canvas::Canvas::new(),
+            header: header::Header::new(),
         }
     }
 
@@ -73,7 +89,7 @@ impl App for Snap {
             .show_separator_line(false)
             .show(ctx, |ui| {
                 ui.centered_and_justified(|ui| {
-                    self.header.update(ui);
+                    self.header.render(ui);
                 })
             });
 
@@ -83,7 +99,7 @@ impl App for Snap {
             .show(ctx, |ui| {
                 ui.centered_and_justified(|ui| {
                     // ui.set_min_width(ui.available_width());
-                    self.footer.update(ui);
+                    self.footer.render(ui);
                 })
             });
 
@@ -92,6 +108,6 @@ impl App for Snap {
             .show_separator_line(false)
             .show(ctx, |ui| ui.label("left"));
 
-        CentralPanel::default().show(ctx, |ui| ui.label("center"));
+        CentralPanel::default().show(ctx, |ui| self.canvas.render(ui));
     }
 }

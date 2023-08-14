@@ -2,20 +2,22 @@ use egui::{Button, Color32};
 
 use crate::{center_widget, palette::Palette};
 
-pub struct Widget {
+pub struct Footer {
     center_widget: center_widget::Widget,
     palette: Palette,
 }
 
-impl Widget {
+impl Footer {
     pub fn new() -> Self {
         Self {
             center_widget: center_widget::Widget::new(),
             palette: Palette::new(),
         }
     }
+}
 
-    pub fn update(&mut self, ui: &mut egui::Ui) {
+impl super::View for Footer {
+    fn render(&mut self, ui: &mut egui::Ui) {
         self.center_widget.update(ui, |ui| {
             let color_button = |title: &str, color: Color32| {
                 Button::new(title)
@@ -48,7 +50,7 @@ impl Widget {
                     ui.separator();
 
                     if ui.add(color_button("E", Color32::from_gray(8))).clicked() {
-                        println!("Erasor chosen");
+                        println!("Eraser chosen");
                     }
                 });
             });

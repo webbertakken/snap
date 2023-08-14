@@ -1,12 +1,15 @@
 use egui::Layout;
 
-pub struct Widget {}
+pub struct Header {}
 
-impl Widget {
+impl Header {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn update(&mut self, ui: &mut egui::Ui) {
+}
+
+impl super::View for Header {
+    fn render(&mut self, ui: &mut egui::Ui) {
         egui::menu::bar(ui, |ui| {
             ui.with_layout(Layout::left_to_right(egui::Align::Center), |ui| {
                 ui.horizontal(|ui| {
