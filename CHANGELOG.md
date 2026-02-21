@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/webbertakken/snap/compare/snap-v0.1.2...snap-v0.1.3) (2026-02-21)
+
+
+### Bug Fixes
+
+* **ci:** use ubuntu-24.04 for cargo-dist Linux and global runners ([#6](https://github.com/webbertakken/snap/issues/6)) ([27fe7c9](https://github.com/webbertakken/snap/commit/27fe7c9ba8e30e13077ed580988273a5e9c0942b))
+
 ## [0.1.2](https://github.com/webbertakken/snap/compare/snap-v0.1.1...snap-v0.1.2) (2026-02-21)
 
 
