@@ -27,6 +27,9 @@ impl Canvas {
             Tool::Eraser => {
                 self.handle_eraser_input(&response, state, &from_screen);
             }
+            Tool::Rectangle | Tool::Ellipse | Tool::Line | Tool::Arrow => {
+                self.handle_shape_input(&mut response, state, &from_screen);
+            }
             _ => {}
         }
 
@@ -46,6 +49,28 @@ impl Canvas {
                     screen_points,
                     Stroke::new(state.stroke_width, state.active_colour),
                 ));
+            }
+        }
+
+        // Render shape preview during drag
+        if let Some(start) = state.shape_start {
+            if let Some(pointer_pos) = response.hover_pos() {
+                let current = from_screen * pointer_pos;
+                let preview_colour = {
+                    let [r, g, b, _] = state.active_colour.to_array();
+                    Color32::from_rgba_unmultiplied(r, g, b, 160)
+                };
+                if let Some(preview) = self.build_shape_object(
+                    state.active_tool,
+                    start,
+                    current,
+                    preview_colour,
+                    state.stroke_width,
+                ) {
+                    if let Some(shape) = self.render_object(&preview, &to_screen) {
+                        painter.add(shape);
+                    }
+                }
             }
         }
 
@@ -114,6 +139,79 @@ impl Canvas {
                 let removed = state.objects.remove(index);
                 state.history.push(Command::Remove(index, removed));
             }
+        }
+    }
+
+    fn handle_shape_input(
+        &self,
+        response: &mut Response,
+        state: &mut AppState,
+        from_screen: &emath::RectTransform,
+    ) {
+        if let Some(pointer_pos) = response.interact_pointer_pos() {
+            let canvas_pos = *from_screen * pointer_pos;
+            if state.shape_start.is_none() {
+                state.shape_start = Some(canvas_pos);
+            }
+            response.mark_changed();
+        } else if let Some(start) = state.shape_start.take() {
+            // Pointer released — commit the shape
+            if let Some(hover) = response.hover_pos() {
+                let end = *from_screen * hover;
+                if let Some(obj) = self.build_shape_object(
+                    state.active_tool,
+                    start,
+                    end,
+                    state.active_colour,
+                    state.stroke_width,
+                ) {
+                    state.objects.push(obj);
+                }
+            }
+            response.mark_changed();
+        }
+    }
+
+    fn build_shape_object(
+        &self,
+        tool: Tool,
+        start: Pos2,
+        end: Pos2,
+        colour: Color32,
+        width: f32,
+    ) -> Option<DrawObject> {
+        match tool {
+            Tool::Rectangle => Some(DrawObject::Rectangle {
+                min: Pos2::new(start.x.min(end.x), start.y.min(end.y)),
+                max: Pos2::new(start.x.max(end.x), start.y.max(end.y)),
+                colour,
+                width,
+            }),
+            Tool::Ellipse => {
+                let center = Pos2::new((start.x + end.x) / 2.0, (start.y + end.y) / 2.0);
+                let radius_x = (end.x - start.x).abs() / 2.0;
+                let radius_y = (end.y - start.y).abs() / 2.0;
+                Some(DrawObject::Ellipse {
+                    center,
+                    radius_x,
+                    radius_y,
+                    colour,
+                    width,
+                })
+            }
+            Tool::Line => Some(DrawObject::Line {
+                start,
+                end,
+                colour,
+                width,
+            }),
+            Tool::Arrow => Some(DrawObject::Arrow {
+                start,
+                end,
+                colour,
+                width,
+            }),
+            _ => None,
         }
     }
 
