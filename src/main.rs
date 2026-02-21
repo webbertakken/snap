@@ -13,6 +13,7 @@ mod footer;
 mod header;
 mod history;
 mod palette;
+mod selection;
 mod state;
 
 fn main() -> eframe::Result {

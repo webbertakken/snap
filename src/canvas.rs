@@ -2,6 +2,7 @@ use egui::*;
 
 use crate::eraser;
 use crate::history::Command;
+use crate::selection;
 use crate::state::{AppState, DrawObject, TextEdit, Tool};
 
 pub struct Canvas;
@@ -34,7 +35,9 @@ impl Canvas {
             Tool::Rectangle | Tool::Ellipse | Tool::Line | Tool::Arrow => {
                 self.handle_shape_input(&mut response, state, &from_screen);
             }
-            _ => {}
+            Tool::Selection => {
+                selection::handle_selection_input(&response, state, &from_screen, ui.ctx());
+            }
         }
 
         // Render all committed objects
@@ -74,6 +77,11 @@ impl Canvas {
                     self.render_object_to_painter(&preview, &to_screen, &painter);
                 }
             }
+        }
+
+        // Draw selection bounding box
+        if state.active_tool == Tool::Selection {
+            selection::draw_selection_box(&painter, state, &to_screen);
         }
 
         // Draw eraser cursor
