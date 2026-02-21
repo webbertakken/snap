@@ -68,6 +68,8 @@ pub struct AppState {
     pub objects: Vec<DrawObject>,
     /// The freehand stroke currently being drawn (not yet committed to objects).
     pub current_stroke: Option<Vec<Pos2>>,
+    /// Drag start position (normalised 0..1) for shape tools.
+    pub shape_start: Option<Pos2>,
 }
 
 impl Default for AppState {
@@ -78,6 +80,7 @@ impl Default for AppState {
             stroke_width: 2.0,
             objects: Vec::new(),
             current_stroke: None,
+            shape_start: None,
         }
     }
 }
