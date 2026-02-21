@@ -3944,7 +3944,7 @@ dependencies = [
 
 [[package]]
 name = "snap"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "dark-light",
  "eframe",
