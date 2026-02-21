@@ -60,6 +60,19 @@ pub enum DrawObject {
     },
 }
 
+/// In-progress text being edited on the canvas.
+#[derive(Debug, Clone)]
+pub struct TextEdit {
+    /// Position in normalised 0..1 coordinates.
+    pub position: Pos2,
+    /// The text content being typed.
+    pub content: String,
+    /// Colour captured when editing started.
+    pub colour: Color32,
+    /// Font size captured when editing started.
+    pub font_size: f32,
+}
+
 /// Shared application state passed to all components each frame.
 pub struct AppState {
     pub active_tool: Tool,
@@ -68,6 +81,8 @@ pub struct AppState {
     pub objects: Vec<DrawObject>,
     /// The freehand stroke currently being drawn (not yet committed to objects).
     pub current_stroke: Option<Vec<Pos2>>,
+    /// Text annotation currently being edited on the canvas.
+    pub editing_text: Option<TextEdit>,
 }
 
 impl Default for AppState {
@@ -78,6 +93,7 @@ impl Default for AppState {
             stroke_width: 2.0,
             objects: Vec::new(),
             current_stroke: None,
+            editing_text: None,
         }
     }
 }

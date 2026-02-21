@@ -78,6 +78,15 @@ impl super::View for Footer {
 
                     ui.separator();
 
+                    // Text tool button
+                    let text_btn = Button::new("T")
+                        .fill(Color32::from_gray(8))
+                        .stroke(tool_border(state.active_tool == Tool::Text))
+                        .min_size(BUTTON_SIZE);
+                    if ui.add(text_btn).clicked() {
+                        state.active_tool = Tool::Text;
+                    }
+
                     // Eraser button
                     let eraser_btn = Button::new("E")
                         .fill(Color32::from_gray(8))
