@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/webbertakken/snap/compare/snap-v0.1.1...snap-v0.1.2) (2026-02-21)
+
+
+### Bug Fixes
+
+* **ci:** quote dotted TOML key for libpipewire dep ([#4](https://github.com/webbertakken/snap/issues/4)) ([c750eeb](https://github.com/webbertakken/snap/commit/c750eebdd115fcc35f580e005598abcf44b2cf6d))
+
 ## [0.1.1](https://github.com/webbertakken/snap/compare/snap-v0.1.0...snap-v0.1.1) (2026-02-21)
 
 
