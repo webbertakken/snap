@@ -9,10 +9,13 @@ use egui::{
 mod canvas;
 mod center_widget;
 mod eraser;
+mod export;
 mod footer;
 mod header;
+mod history;
 mod palette;
 mod screenshot;
+mod selection;
 mod state;
 
 fn main() -> eframe::Result {
@@ -121,6 +124,17 @@ impl App for Snap {
         // Drive the screenshot capture state machine before rendering UI.
         self.tick_capture(ctx);
 
+        // Handle undo/redo keyboard shortcuts
+        if ctx.input(|i| i.key_pressed(egui::Key::Z) && i.modifiers.ctrl && !i.modifiers.shift) {
+            self.state.history.undo(&mut self.state.objects);
+        }
+        if ctx.input(|i| {
+            i.key_pressed(egui::Key::Y) && i.modifiers.ctrl
+                || i.key_pressed(egui::Key::Z) && i.modifiers.ctrl && i.modifiers.shift
+        }) {
+            self.state.history.redo(&mut self.state.objects);
+        }
+
         TopBottomPanel::top("top_panel")
             .exact_height(64.0)
             .show_separator_line(false)
@@ -133,6 +147,28 @@ impl App for Snap {
         if self.header.take_theme_toggled() {
             self.dark_mode = !self.dark_mode;
             self.apply_theme(ctx);
+        }
+
+        if self.header.take_undo_clicked() {
+            self.state.history.undo(&mut self.state.objects);
+        }
+        if self.header.take_redo_clicked() {
+            self.state.history.redo(&mut self.state.objects);
+        }
+
+        if std::mem::take(&mut self.state.export_requested) {
+            let bg = if self.dark_mode {
+                egui::Color32::from_gray(27) // egui dark background
+            } else {
+                egui::Color32::from_gray(248) // egui light background
+            };
+            // Use a sensible default canvas size for the export
+            let viewport = ctx.input(|i| i.viewport_rect());
+            let w = viewport.width().max(1.0) as u32;
+            let h = viewport.height().max(1.0) as u32;
+            if let Err(e) = export::export_with_dialog(&self.state.objects, w, h, bg) {
+                eprintln!("Export failed: {e}");
+            }
         }
 
         TopBottomPanel::bottom("bottom_panel")

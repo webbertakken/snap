@@ -15,6 +15,7 @@ global-hotkey = "0.7.0"
 image = "0.25"
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
+rfd = "0.15"
 xcap = "0.8"
 
 # cargo-dist build profile
