@@ -55,6 +55,7 @@ libxrandr-dev = "*"
 libdbus-1-dev = "*"
 libwayland-dev = "*"
 libegl-dev = "*"
+libgbm-dev = "*"
 
 # Custom runners for specific targets
 [workspace.metadata.dist.github-custom-runners]
