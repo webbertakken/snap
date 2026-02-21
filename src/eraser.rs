@@ -39,10 +39,18 @@ pub fn hit_test(object: &DrawObject, pos: Pos2) -> bool {
         DrawObject::Line { start, end, .. } | DrawObject::Arrow { start, end, .. } => {
             distance_to_segment(pos, *start, *end) < ERASER_TOLERANCE
         }
-        DrawObject::Text { pos: text_pos, .. } => {
-            // Simple bounding-box approximation
-            let size = 0.05; // rough text bounding size in normalised coords
-            let rect = egui::Rect::from_min_size(*text_pos, egui::vec2(size, size));
+        DrawObject::Text {
+            pos: text_pos,
+            content,
+            font_size,
+            ..
+        } => {
+            // Approximate bounding box using character count and font size in normalised coords.
+            // font_size is in screen pixels; a rough normalised equivalent is font_size * 0.001.
+            let char_width = *font_size * 0.0006;
+            let line_height = *font_size * 0.001;
+            let width = char_width * content.len().max(1) as f32;
+            let rect = egui::Rect::from_min_size(*text_pos, egui::vec2(width, line_height));
             rect.expand(ERASER_TOLERANCE).contains(pos)
         }
         DrawObject::Image {
@@ -55,7 +63,7 @@ pub fn hit_test(object: &DrawObject, pos: Pos2) -> bool {
 }
 
 /// Minimum distance from a point to a polyline (sequence of connected segments).
-fn distance_to_polyline(point: Pos2, polyline: &[Pos2]) -> f32 {
+pub fn distance_to_polyline(point: Pos2, polyline: &[Pos2]) -> f32 {
     if polyline.is_empty() {
         return f32::MAX;
     }
@@ -70,7 +78,7 @@ fn distance_to_polyline(point: Pos2, polyline: &[Pos2]) -> f32 {
 }
 
 /// Minimum distance from a point to a line segment.
-fn distance_to_segment(point: Pos2, a: Pos2, b: Pos2) -> f32 {
+pub fn distance_to_segment(point: Pos2, a: Pos2, b: Pos2) -> f32 {
     let ab = b - a;
     let ap = point - a;
     let len_sq = ab.length_sq();
