@@ -1,6 +1,6 @@
 use egui::Layout;
 
-use crate::state::AppState;
+use crate::state::{AppState, CaptureState};
 
 pub struct Header {
     /// Whether the theme toggle was clicked this frame
@@ -21,10 +21,22 @@ impl Header {
 }
 
 impl super::View for Header {
-    fn render(&mut self, ui: &mut egui::Ui, _state: &mut AppState) {
+    fn render(&mut self, ui: &mut egui::Ui, state: &mut AppState) {
         egui::MenuBar::new().ui(ui, |ui| {
             ui.with_layout(Layout::left_to_right(egui::Align::Center), |ui| {
                 ui.horizontal(|ui| {
+                    let capture_in_progress = state.capture_state != CaptureState::Idle;
+                    let btn = egui::Button::new("Capture");
+                    if ui
+                        .add_enabled(!capture_in_progress, btn)
+                        .on_hover_text("Take a screenshot")
+                        .clicked()
+                    {
+                        state.capture_state = CaptureState::Minimising { frames_waited: 0 };
+                    }
+
+                    ui.separator();
+
                     ui.label("button1");
                     ui.label("button2");
 

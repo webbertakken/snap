@@ -3,6 +3,7 @@ use std::sync::Arc;
 use eframe::{run_native, App, CreationContext, Frame, NativeOptions};
 use egui::{
     CentralPanel, Context, FontData, FontDefinitions, FontFamily, SidePanel, TopBottomPanel,
+    ViewportCommand,
 };
 
 mod canvas;
@@ -11,6 +12,7 @@ mod eraser;
 mod footer;
 mod header;
 mod palette;
+mod screenshot;
 mod state;
 
 fn main() -> eframe::Result {
@@ -110,8 +112,15 @@ impl Snap {
     }
 }
 
+/// Number of frames to wait after minimising before capturing, giving the
+/// window manager time to actually hide the window.
+const MINIMISE_WAIT_FRAMES: u32 = 5;
+
 impl App for Snap {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        // Drive the screenshot capture state machine before rendering UI.
+        self.tick_capture(ctx);
+
         TopBottomPanel::top("top_panel")
             .exact_height(64.0)
             .show_separator_line(false)
@@ -141,5 +150,36 @@ impl App for Snap {
             .show(ctx, |ui| ui.label("left"));
 
         CentralPanel::default().show(ctx, |ui| self.canvas.render(ui, &mut self.state));
+    }
+}
+
+impl Snap {
+    /// Advances the screenshot capture state machine by one frame.
+    fn tick_capture(&mut self, ctx: &Context) {
+        match self.state.capture_state {
+            state::CaptureState::Minimising { frames_waited } => {
+                if frames_waited == 0 {
+                    ctx.send_viewport_cmd(ViewportCommand::Minimized(true));
+                }
+
+                if frames_waited >= MINIMISE_WAIT_FRAMES {
+                    // Give the OS a moment to finish the minimise animation.
+                    std::thread::sleep(std::time::Duration::from_millis(300));
+                    screenshot::capture_and_load(ctx, &mut self.state);
+                    ctx.send_viewport_cmd(ViewportCommand::Minimized(false));
+                    self.state.capture_state = state::CaptureState::Restoring;
+                } else {
+                    self.state.capture_state = state::CaptureState::Minimising {
+                        frames_waited: frames_waited + 1,
+                    };
+                    // Request another repaint so we keep ticking.
+                    ctx.request_repaint();
+                }
+            }
+            state::CaptureState::Restoring => {
+                self.state.capture_state = state::CaptureState::Idle;
+            }
+            state::CaptureState::Idle => {}
+        }
     }
 }
