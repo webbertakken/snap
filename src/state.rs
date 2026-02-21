@@ -89,6 +89,8 @@ pub struct AppState {
     pub history: History,
     /// Drag start position (normalised 0..1) for shape tools.
     pub shape_start: Option<Pos2>,
+    /// Set to true when the user clicks the export button; consumed by the app loop.
+    pub export_requested: bool,
 }
 
 impl Default for AppState {
@@ -102,6 +104,7 @@ impl Default for AppState {
             editing_text: None,
             history: History::new(),
             shape_start: None,
+            export_requested: false,
         }
     }
 }

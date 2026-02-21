@@ -82,6 +82,14 @@ impl super::View for Header {
                 if ui.button(icon).on_hover_text(tooltip).clicked() {
                     self.theme_toggled = true;
                 }
+
+                if ui
+                    .button("Export")
+                    .on_hover_text("Export canvas as PNG")
+                    .clicked()
+                {
+                    state.export_requested = true;
+                }
             });
         });
     }
