@@ -1,6 +1,7 @@
 use egui::*;
 
 use crate::eraser;
+use crate::history::Command;
 use crate::state::{AppState, DrawObject, Tool};
 
 pub struct Canvas;
@@ -104,11 +105,13 @@ impl Canvas {
         } else if let Some(points) = state.current_stroke.take() {
             // Pointer released — commit the stroke as a DrawObject
             if points.len() >= 2 {
-                state.objects.push(DrawObject::Freehand {
+                let obj = DrawObject::Freehand {
                     points,
                     colour: state.active_colour,
                     width: state.stroke_width,
-                });
+                };
+                state.objects.push(obj.clone());
+                state.history.push(Command::Add(obj));
             }
             response.mark_changed();
         }
@@ -122,10 +125,20 @@ impl Canvas {
     ) {
         if let Some(pointer_pos) = response.interact_pointer_pos() {
             let canvas_pos = *from_screen * pointer_pos;
-            // Remove objects the pointer touches (iterate in reverse so indices stay valid)
-            state
+            // Collect indices of hit objects in reverse order so removals don't shift later indices
+            let hit_indices: Vec<usize> = state
                 .objects
-                .retain(|obj| !eraser::hit_test(obj, canvas_pos));
+                .iter()
+                .enumerate()
+                .filter(|(_, obj)| eraser::hit_test(obj, canvas_pos))
+                .map(|(i, _)| i)
+                .rev()
+                .collect();
+
+            for index in hit_indices {
+                let removed = state.objects.remove(index);
+                state.history.push(Command::Remove(index, removed));
+            }
         }
     }
 
