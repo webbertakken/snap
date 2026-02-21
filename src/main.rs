@@ -38,6 +38,7 @@ pub trait View {
 }
 
 struct Snap {
+    dark_mode: bool,
     header: header::Header,
     canvas: canvas::Canvas,
     footer: footer::Footer,
@@ -46,16 +47,35 @@ struct Snap {
 impl Snap {
     pub fn new() -> Self {
         Self {
+            dark_mode: true,
             footer: footer::Footer::new(),
             canvas: canvas::Canvas::new(),
             header: header::Header::new(),
         }
     }
 
-    pub fn init(self, cc: &CreationContext) -> Self {
+    pub fn init(mut self, cc: &CreationContext) -> Self {
         self.configure_fonts(&cc.egui_ctx);
+        self.dark_mode = self.detect_os_theme();
+        self.apply_theme(&cc.egui_ctx);
 
         self
+    }
+
+    fn detect_os_theme(&self) -> bool {
+        match dark_light::detect() {
+            Ok(dark_light::Mode::Light) => false,
+            // Default to dark for Dark, Unspecified, or detection errors
+            _ => true,
+        }
+    }
+
+    fn apply_theme(&self, ctx: &Context) {
+        if self.dark_mode {
+            ctx.set_visuals(egui::Visuals::dark());
+        } else {
+            ctx.set_visuals(egui::Visuals::light());
+        }
     }
 
     fn configure_fonts(&self, ctx: &Context) {
@@ -96,6 +116,11 @@ impl App for Snap {
                     self.header.render(ui);
                 })
             });
+
+        if self.header.take_theme_toggled() {
+            self.dark_mode = !self.dark_mode;
+            self.apply_theme(ctx);
+        }
 
         TopBottomPanel::bottom("bottom_panel")
             .exact_height(64.0)
