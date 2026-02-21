@@ -1,5 +1,7 @@
 use egui::{Color32, Pos2, Rect, Vec2};
 
+use crate::history::History;
+
 /// All available drawing/interaction tools.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Tool {
@@ -130,6 +132,19 @@ impl DrawObject {
     }
 }
 
+/// In-progress text being edited on the canvas.
+#[derive(Debug, Clone)]
+pub struct TextEdit {
+    /// Position in normalised 0..1 coordinates.
+    pub position: Pos2,
+    /// The text content being typed.
+    pub content: String,
+    /// Colour captured when editing started.
+    pub colour: Color32,
+    /// Font size captured when editing started.
+    pub font_size: f32,
+}
+
 /// Shared application state passed to all components each frame.
 pub struct AppState {
     pub active_tool: Tool,
@@ -138,6 +153,14 @@ pub struct AppState {
     pub objects: Vec<DrawObject>,
     /// The freehand stroke currently being drawn (not yet committed to objects).
     pub current_stroke: Option<Vec<Pos2>>,
+    /// Text annotation currently being edited on the canvas.
+    pub editing_text: Option<TextEdit>,
+    /// Undo/redo history for canvas operations.
+    pub history: History,
+    /// Drag start position (normalised 0..1) for shape tools.
+    pub shape_start: Option<Pos2>,
+    /// Set to true when the user clicks the export button; consumed by the app loop.
+    pub export_requested: bool,
     /// Index of the currently selected object (for the Selection tool).
     pub selected_index: Option<usize>,
     /// Offset between pointer and object origin when dragging a selected object.
@@ -152,6 +175,10 @@ impl Default for AppState {
             stroke_width: 2.0,
             objects: Vec::new(),
             current_stroke: None,
+            editing_text: None,
+            history: History::new(),
+            shape_start: None,
+            export_requested: false,
             selected_index: None,
             drag_offset: None,
         }

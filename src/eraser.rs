@@ -39,10 +39,18 @@ pub fn hit_test(object: &DrawObject, pos: Pos2) -> bool {
         DrawObject::Line { start, end, .. } | DrawObject::Arrow { start, end, .. } => {
             distance_to_segment(pos, *start, *end) < ERASER_TOLERANCE
         }
-        DrawObject::Text { pos: text_pos, .. } => {
-            // Simple bounding-box approximation
-            let size = 0.05; // rough text bounding size in normalised coords
-            let rect = egui::Rect::from_min_size(*text_pos, egui::vec2(size, size));
+        DrawObject::Text {
+            pos: text_pos,
+            content,
+            font_size,
+            ..
+        } => {
+            // Approximate bounding box using character count and font size in normalised coords.
+            // font_size is in screen pixels; a rough normalised equivalent is font_size * 0.001.
+            let char_width = *font_size * 0.0006;
+            let line_height = *font_size * 0.001;
+            let width = char_width * content.len().max(1) as f32;
+            let rect = egui::Rect::from_min_size(*text_pos, egui::vec2(width, line_height));
             rect.expand(ERASER_TOLERANCE).contains(pos)
         }
         DrawObject::Image { pos: img_pos, size } => {

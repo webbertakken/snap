@@ -45,6 +45,42 @@ impl super::View for Footer {
                         state.active_tool = Tool::Freehand;
                     }
 
+                    // Rectangle tool
+                    let rect_btn = Button::new("\u{25ad}")
+                        .fill(Color32::from_gray(8))
+                        .stroke(tool_border(state.active_tool == Tool::Rectangle))
+                        .min_size(BUTTON_SIZE);
+                    if ui.add(rect_btn).clicked() {
+                        state.active_tool = Tool::Rectangle;
+                    }
+
+                    // Ellipse tool
+                    let ellipse_btn = Button::new("\u{25cb}")
+                        .fill(Color32::from_gray(8))
+                        .stroke(tool_border(state.active_tool == Tool::Ellipse))
+                        .min_size(BUTTON_SIZE);
+                    if ui.add(ellipse_btn).clicked() {
+                        state.active_tool = Tool::Ellipse;
+                    }
+
+                    // Line tool
+                    let line_btn = Button::new("\u{2571}")
+                        .fill(Color32::from_gray(8))
+                        .stroke(tool_border(state.active_tool == Tool::Line))
+                        .min_size(BUTTON_SIZE);
+                    if ui.add(line_btn).clicked() {
+                        state.active_tool = Tool::Line;
+                    }
+
+                    // Arrow tool
+                    let arrow_btn = Button::new("\u{2192}")
+                        .fill(Color32::from_gray(8))
+                        .stroke(tool_border(state.active_tool == Tool::Arrow))
+                        .min_size(BUTTON_SIZE);
+                    if ui.add(arrow_btn).clicked() {
+                        state.active_tool = Tool::Arrow;
+                    }
+
                     ui.separator();
 
                     // Colour palette buttons
@@ -88,6 +124,15 @@ impl super::View for Footer {
                     }
 
                     ui.separator();
+
+                    // Text tool button
+                    let text_btn = Button::new("T")
+                        .fill(Color32::from_gray(8))
+                        .stroke(tool_border(state.active_tool == Tool::Text))
+                        .min_size(BUTTON_SIZE);
+                    if ui.add(text_btn).clicked() {
+                        state.active_tool = Tool::Text;
+                    }
 
                     // Eraser button
                     let eraser_btn = Button::new("E")

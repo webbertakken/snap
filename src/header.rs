@@ -3,28 +3,58 @@ use egui::Layout;
 use crate::state::AppState;
 
 pub struct Header {
-    /// Whether the theme toggle was clicked this frame
+    /// Whether the theme toggle was clicked this frame.
     theme_toggled: bool,
+    /// Whether the undo button was clicked this frame.
+    undo_clicked: bool,
+    /// Whether the redo button was clicked this frame.
+    redo_clicked: bool,
 }
 
 impl Header {
     pub fn new() -> Self {
         Self {
             theme_toggled: false,
+            undo_clicked: false,
+            redo_clicked: false,
         }
     }
 
-    /// Returns true if the theme toggle button was clicked since the last call
+    /// Returns true if the theme toggle button was clicked since the last call.
     pub fn take_theme_toggled(&mut self) -> bool {
         std::mem::take(&mut self.theme_toggled)
+    }
+
+    /// Returns true if the undo button was clicked since the last call.
+    pub fn take_undo_clicked(&mut self) -> bool {
+        std::mem::take(&mut self.undo_clicked)
+    }
+
+    /// Returns true if the redo button was clicked since the last call.
+    pub fn take_redo_clicked(&mut self) -> bool {
+        std::mem::take(&mut self.redo_clicked)
     }
 }
 
 impl super::View for Header {
-    fn render(&mut self, ui: &mut egui::Ui, _state: &mut AppState) {
+    fn render(&mut self, ui: &mut egui::Ui, state: &mut AppState) {
         egui::MenuBar::new().ui(ui, |ui| {
             ui.with_layout(Layout::left_to_right(egui::Align::Center), |ui| {
                 ui.horizontal(|ui| {
+                    let undo_btn = egui::Button::new("\u{21b6}");
+                    let undo_response = ui.add_enabled(state.history.can_undo(), undo_btn);
+                    if undo_response.on_hover_text("Undo (Ctrl+Z)").clicked() {
+                        self.undo_clicked = true;
+                    }
+
+                    let redo_btn = egui::Button::new("\u{21b7}");
+                    let redo_response = ui.add_enabled(state.history.can_redo(), redo_btn);
+                    if redo_response.on_hover_text("Redo (Ctrl+Y)").clicked() {
+                        self.redo_clicked = true;
+                    }
+
+                    ui.separator();
+
                     ui.label("button1");
                     ui.label("button2");
 
@@ -51,6 +81,14 @@ impl super::View for Header {
                 };
                 if ui.button(icon).on_hover_text(tooltip).clicked() {
                     self.theme_toggled = true;
+                }
+
+                if ui
+                    .button("Export")
+                    .on_hover_text("Export canvas as PNG")
+                    .clicked()
+                {
+                    state.export_requested = true;
                 }
             });
         });
