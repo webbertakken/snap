@@ -37,7 +37,7 @@ targets = [
 # PR checks run plan-only to catch issues early
 pr-run-mode = "plan"
 
-# Linux system dependencies for egui/eframe
+# Linux system dependencies for egui/eframe + xcap
 [workspace.metadata.dist.dependencies.apt]
 libxcb-render0-dev = "*"
 libxcb-shape0-dev = "*"
@@ -46,6 +46,12 @@ libxkbcommon-dev = "*"
 libssl-dev = "*"
 libgtk-3-dev = "*"
 libpipewire-0.3-dev = "*"
+libclang-dev = "*"
+libxcb1-dev = "*"
+libxrandr-dev = "*"
+libdbus-1-dev = "*"
+libwayland-dev = "*"
+libegl-dev = "*"
 
 # Use native ARM runner for Linux ARM64 builds
 [workspace.metadata.dist.github-custom-runners]
