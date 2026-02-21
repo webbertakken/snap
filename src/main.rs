@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use eframe::{run_native, App, CreationContext, Frame, NativeOptions};
 use egui::{
     CentralPanel, Context, FontData, FontDefinitions, FontFamily, SidePanel, TopBottomPanel,
@@ -9,16 +11,16 @@ mod footer;
 mod header;
 mod palette;
 
-fn main() -> Result<(), eframe::Error> {
+fn main() -> eframe::Result {
     let native_options = NativeOptions {
-        initial_window_size: Some(egui::vec2(1680.0, 1050.0)),
+        viewport: egui::ViewportBuilder::default().with_inner_size([1680.0, 1050.0]),
         ..Default::default()
     };
 
     run_native(
         "Snap",
         native_options,
-        Box::new(|cc| Box::new(Snap::new().init(cc))),
+        Box::new(|cc| Ok(Box::new(Snap::new().init(cc)))),
     )
 }
 
@@ -61,7 +63,9 @@ impl Snap {
 
         fonts.font_data.insert(
             "MesloLGM".to_owned(),
-            FontData::from_static(include_bytes!("../assets/MesloLGM.ttf")),
+            Arc::new(FontData::from_static(include_bytes!(
+                "../assets/MesloLGM.ttf"
+            ))),
         );
 
         // Set first proportional font
@@ -98,7 +102,6 @@ impl App for Snap {
             .show_separator_line(false)
             .show(ctx, |ui| {
                 ui.centered_and_justified(|ui| {
-                    // ui.set_min_width(ui.available_width());
                     self.footer.render(ui);
                 })
             });
