@@ -8,6 +8,7 @@ use egui::{
 
 mod canvas;
 mod center_widget;
+mod clipboard;
 mod eraser;
 mod export;
 mod footer;
@@ -124,6 +125,16 @@ impl App for Snap {
         // Drive the screenshot capture state machine before rendering UI.
         self.tick_capture(ctx);
 
+        // Ctrl+C: copy canvas region to clipboard
+        if ctx.input(|i| i.key_pressed(egui::Key::C) && i.modifiers.command) {
+            self.copy_canvas_to_clipboard();
+        }
+
+        // Ctrl+V: paste image from clipboard
+        if ctx.input(|i| i.key_pressed(egui::Key::V) && i.modifiers.command) {
+            self.paste_image_from_clipboard(ctx);
+        }
+
         // Handle undo/redo keyboard shortcuts
         if ctx.input(|i| i.key_pressed(egui::Key::Z) && i.modifiers.ctrl && !i.modifiers.shift) {
             self.state.history.undo(&mut self.state.objects);
@@ -217,5 +228,83 @@ impl Snap {
             }
             state::CaptureState::Idle => {}
         }
+    }
+
+    /// Captures the canvas area and copies it to the system clipboard.
+    fn copy_canvas_to_clipboard(&self) {
+        let Some(rect) = self.canvas.canvas_rect() else {
+            return;
+        };
+
+        // Use xcap to capture the canvas region
+        let monitors = match xcap::Monitor::all() {
+            Ok(m) => m,
+            Err(_err) => {
+                #[cfg(debug_assertions)]
+                eprintln!("clipboard copy: failed to list monitors: {_err}");
+                return;
+            }
+        };
+
+        let Some(monitor) = monitors.into_iter().next() else {
+            return;
+        };
+
+        let screenshot = match monitor.capture_image() {
+            Ok(img) => img,
+            Err(_err) => {
+                #[cfg(debug_assertions)]
+                eprintln!("clipboard copy: failed to capture screen: {_err}");
+                return;
+            }
+        };
+
+        // Crop to the canvas rect (screen coordinates)
+        let x = (rect.min.x as u32).min(screenshot.width().saturating_sub(1));
+        let y = (rect.min.y as u32).min(screenshot.height().saturating_sub(1));
+        let w = (rect.width() as u32).min(screenshot.width().saturating_sub(x));
+        let h = (rect.height() as u32).min(screenshot.height().saturating_sub(y));
+
+        if w == 0 || h == 0 {
+            return;
+        }
+
+        let cropped = image::imageops::crop_imm(&screenshot, x, y, w, h).to_image();
+        clipboard::copy_to_clipboard(cropped.as_raw(), w as usize, h as usize);
+    }
+
+    /// Reads an image from the clipboard and adds it as a DrawObject at the canvas centre.
+    fn paste_image_from_clipboard(&mut self, ctx: &Context) {
+        let Some((rgba, width, height)) = clipboard::paste_from_clipboard() else {
+            return;
+        };
+
+        if width == 0 || height == 0 {
+            return;
+        }
+
+        let color_image = egui::ColorImage::from_rgba_unmultiplied([width, height], &rgba);
+        let texture =
+            ctx.load_texture("clipboard_paste", color_image, egui::TextureOptions::LINEAR);
+
+        // Place image centred in the canvas using normalised coordinates.
+        // Use a sensible default size relative to the canvas (e.g. 0.4 of canvas width).
+        let canvas_rect = self.canvas.canvas_rect();
+        let (norm_pos, norm_size) = if let Some(rect) = canvas_rect {
+            let aspect = height as f32 / width as f32;
+            let norm_w = 0.4_f32; // 40% of canvas normalised width
+            let norm_h = norm_w * aspect * (rect.width() / rect.height());
+            let cx = 0.5 - norm_w / 2.0;
+            let cy = 0.5 - norm_h / 2.0;
+            (egui::pos2(cx, cy), egui::vec2(norm_w, norm_h))
+        } else {
+            (egui::pos2(0.3, 0.3), egui::vec2(0.4, 0.4))
+        };
+
+        self.state.objects.push(state::DrawObject::Image {
+            texture,
+            pos: norm_pos,
+            size: norm_size,
+        });
     }
 }

@@ -5,16 +5,22 @@ use crate::history::Command;
 use crate::selection;
 use crate::state::{AppState, DrawObject, TextEdit, Tool};
 
-pub struct Canvas;
+pub struct Canvas {
+    /// Tracks the last canvas rect for clipboard copy.
+    last_canvas_rect: Option<Rect>,
+}
 
 impl Canvas {
     pub fn new() -> Self {
-        Self
+        Self {
+            last_canvas_rect: None,
+        }
     }
 
-    fn ui_content(&self, ui: &mut Ui, state: &mut AppState) -> egui::Response {
+    fn ui_content(&mut self, ui: &mut Ui, state: &mut AppState) -> egui::Response {
         let (mut response, painter) =
             ui.allocate_painter(ui.available_size(), Sense::click_and_drag());
+        self.last_canvas_rect = Some(response.rect);
 
         let to_screen = emath::RectTransform::from_to(
             Rect::from_min_size(Pos2::ZERO, response.rect.square_proportions()),
@@ -463,6 +469,13 @@ impl Canvas {
             // Text is rendered via painter.text() in render_object_to_painter
             DrawObject::Text { .. } => None,
         }
+    }
+}
+
+impl Canvas {
+    /// Returns the last known canvas rect in screen coordinates.
+    pub fn canvas_rect(&self) -> Option<Rect> {
+        self.last_canvas_rect
     }
 }
 

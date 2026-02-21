@@ -58,7 +58,9 @@ pub enum DrawObject {
     },
     Image {
         texture: TextureHandle,
+        /// Position in normalised 0..1 coordinates.
         pos: Pos2,
+        /// Size in normalised coordinates.
         size: egui::Vec2,
     },
 }
