@@ -1,5 +1,7 @@
 use egui::Layout;
 
+use crate::state::AppState;
+
 pub struct Header {
     /// Whether the theme toggle was clicked this frame
     theme_toggled: bool,
@@ -19,7 +21,7 @@ impl Header {
 }
 
 impl super::View for Header {
-    fn render(&mut self, ui: &mut egui::Ui) {
+    fn render(&mut self, ui: &mut egui::Ui, _state: &mut AppState) {
         egui::MenuBar::new().ui(ui, |ui| {
             ui.with_layout(Layout::left_to_right(egui::Align::Center), |ui| {
                 ui.horizontal(|ui| {
