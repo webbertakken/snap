@@ -1,10 +1,20 @@
 use egui::Layout;
 
-pub struct Header {}
+pub struct Header {
+    /// Whether the theme toggle was clicked this frame
+    theme_toggled: bool,
+}
 
 impl Header {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            theme_toggled: false,
+        }
+    }
+
+    /// Returns true if the theme toggle button was clicked since the last call
+    pub fn take_theme_toggled(&mut self) -> bool {
+        std::mem::take(&mut self.theme_toggled)
     }
 }
 
@@ -29,7 +39,17 @@ impl super::View for Header {
             });
 
             ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
-                ui.label("test");
+                let is_dark = ui.visuals().dark_mode;
+                // Show the icon for the opposite theme
+                let icon = if is_dark { "☀" } else { "🌙" };
+                let tooltip = if is_dark {
+                    "Switch to light theme"
+                } else {
+                    "Switch to dark theme"
+                };
+                if ui.button(icon).on_hover_text(tooltip).clicked() {
+                    self.theme_toggled = true;
+                }
             });
         });
     }
