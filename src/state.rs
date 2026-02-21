@@ -1,4 +1,4 @@
-use egui::{Color32, Pos2};
+use egui::{Color32, Pos2, TextureHandle};
 
 /// All available drawing/interaction tools.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -14,7 +14,7 @@ pub enum Tool {
 }
 
 /// A single canvas element with its own visual properties.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum DrawObject {
     Freehand {
         /// Points in normalised 0..1 coordinates.
@@ -55,8 +55,11 @@ pub enum DrawObject {
         colour: Color32,
     },
     Image {
+        /// Position in normalised 0..1 coordinates.
         pos: Pos2,
+        /// Size in normalised coordinates.
         size: egui::Vec2,
+        texture: TextureHandle,
     },
 }
 

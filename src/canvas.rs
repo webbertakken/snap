@@ -3,15 +3,21 @@ use egui::*;
 use crate::eraser;
 use crate::state::{AppState, DrawObject, Tool};
 
-pub struct Canvas;
+pub struct Canvas {
+    /// Tracks the last canvas rect for clipboard copy.
+    last_canvas_rect: Option<Rect>,
+}
 
 impl Canvas {
     pub fn new() -> Self {
-        Self
+        Self {
+            last_canvas_rect: None,
+        }
     }
 
-    fn ui_content(&self, ui: &mut Ui, state: &mut AppState) -> egui::Response {
+    fn ui_content(&mut self, ui: &mut Ui, state: &mut AppState) -> egui::Response {
         let (mut response, painter) = ui.allocate_painter(ui.available_size(), Sense::drag());
+        self.last_canvas_rect = Some(response.rect);
 
         let to_screen = emath::RectTransform::from_to(
             Rect::from_min_size(Pos2::ZERO, response.rect.square_proportions()),
@@ -182,9 +188,26 @@ impl Canvas {
                     Shape::line_segment([b, tip2], stroke),
                 ]))
             }
-            // Text and Image rendering are placeholder stubs
-            DrawObject::Text { .. } | DrawObject::Image { .. } => None,
+            DrawObject::Text { .. } => None,
+            DrawObject::Image { pos, size, texture } => {
+                let screen_pos = *to_screen * *pos;
+                let scale = to_screen.to().size();
+                let proportions = to_screen.from().size();
+                let sx = scale.x / proportions.x;
+                let sy = scale.y / proportions.y;
+                let screen_size = Vec2::new(size.x * sx, size.y * sy);
+                let rect = Rect::from_min_size(screen_pos, screen_size);
+                let uv = Rect::from_min_max(pos2(0.0, 0.0), pos2(1.0, 1.0));
+                Some(Shape::image(texture.id(), rect, uv, Color32::WHITE))
+            }
         }
+    }
+}
+
+impl Canvas {
+    /// Returns the last known canvas rect in screen coordinates.
+    pub fn canvas_rect(&self) -> Option<Rect> {
+        self.last_canvas_rect
     }
 }
 

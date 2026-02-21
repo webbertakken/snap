@@ -8,6 +8,7 @@ repository = "https://github.com/webbertakken/snap"
 serde = ["dep:serde", "dep:serde_json", "egui/serde"]
 
 [dependencies]
+arboard = "3"
 dark-light = "2.0.0"
 eframe = "0.33.3"
 egui = "0.33.3"
