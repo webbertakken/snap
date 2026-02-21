@@ -8,6 +8,7 @@ use egui::{
 mod canvas;
 mod center_widget;
 mod eraser;
+mod export;
 mod footer;
 mod header;
 mod palette;
@@ -124,6 +125,21 @@ impl App for Snap {
         if self.header.take_theme_toggled() {
             self.dark_mode = !self.dark_mode;
             self.apply_theme(ctx);
+        }
+
+        if std::mem::take(&mut self.state.export_requested) {
+            let bg = if self.dark_mode {
+                egui::Color32::from_gray(27) // egui dark background
+            } else {
+                egui::Color32::from_gray(248) // egui light background
+            };
+            // Use a sensible default canvas size for the export
+            let viewport = ctx.input(|i| i.viewport_rect());
+            let w = viewport.width().max(1.0) as u32;
+            let h = viewport.height().max(1.0) as u32;
+            if let Err(e) = export::export_with_dialog(&self.state.objects, w, h, bg) {
+                eprintln!("Export failed: {e}");
+            }
         }
 
         TopBottomPanel::bottom("bottom_panel")
