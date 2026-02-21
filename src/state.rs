@@ -1,5 +1,7 @@
 use egui::{Color32, Pos2};
 
+use crate::history::History;
+
 /// All available drawing/interaction tools.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Tool {
@@ -68,6 +70,8 @@ pub struct AppState {
     pub objects: Vec<DrawObject>,
     /// The freehand stroke currently being drawn (not yet committed to objects).
     pub current_stroke: Option<Vec<Pos2>>,
+    /// Undo/redo history for canvas operations.
+    pub history: History,
 }
 
 impl Default for AppState {
@@ -78,6 +82,7 @@ impl Default for AppState {
             stroke_width: 2.0,
             objects: Vec::new(),
             current_stroke: None,
+            history: History::new(),
         }
     }
 }
