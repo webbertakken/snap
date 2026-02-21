@@ -1,6 +1,6 @@
 use egui::Layout;
 
-use crate::state::AppState;
+use crate::state::{AppState, CaptureState};
 
 pub struct Header {
     /// Whether the theme toggle was clicked this frame.
@@ -41,6 +41,16 @@ impl super::View for Header {
         egui::MenuBar::new().ui(ui, |ui| {
             ui.with_layout(Layout::left_to_right(egui::Align::Center), |ui| {
                 ui.horizontal(|ui| {
+                    let capture_in_progress = state.capture_state != CaptureState::Idle;
+                    let btn = egui::Button::new("Capture");
+                    if ui
+                        .add_enabled(!capture_in_progress, btn)
+                        .on_hover_text("Take a screenshot")
+                        .clicked()
+                    {
+                        state.capture_state = CaptureState::Minimising { frames_waited: 0 };
+                    }
+
                     let undo_btn = egui::Button::new("\u{21b6}");
                     let undo_response = ui.add_enabled(state.history.can_undo(), undo_btn);
                     if undo_response.on_hover_text("Undo (Ctrl+Z)").clicked() {

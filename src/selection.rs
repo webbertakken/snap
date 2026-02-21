@@ -57,7 +57,9 @@ fn selection_hit_test(object: &DrawObject, pos: Pos2) -> bool {
             let rect = egui::Rect::from_min_size(*text_pos, egui::vec2(size, size));
             rect.expand(SELECTION_TOLERANCE).contains(pos)
         }
-        DrawObject::Image { pos: img_pos, size } => {
+        DrawObject::Image {
+            pos: img_pos, size, ..
+        } => {
             let rect = egui::Rect::from_min_size(*img_pos, *size);
             rect.expand(SELECTION_TOLERANCE).contains(pos)
         }
