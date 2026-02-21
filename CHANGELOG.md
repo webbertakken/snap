@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/webbertakken/snap/compare/snap-v0.1.3...snap-v0.1.4) (2026-02-21)
+
+
+### Bug Fixes
+
+* **ci:** prevent cargo-dist from creating duplicate GitHub Release ([#8](https://github.com/webbertakken/snap/issues/8)) ([b4c2149](https://github.com/webbertakken/snap/commit/b4c21498e9eae623eb977ecd30062da97b691d61))
+
 ## [0.1.3](https://github.com/webbertakken/snap/compare/snap-v0.1.2...snap-v0.1.3) (2026-02-21)
 
 
