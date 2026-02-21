@@ -10,7 +10,7 @@ impl Header {
 
 impl super::View for Header {
     fn render(&mut self, ui: &mut egui::Ui) {
-        egui::menu::bar(ui, |ui| {
+        egui::MenuBar::new().ui(ui, |ui| {
             ui.with_layout(Layout::left_to_right(egui::Align::Center), |ui| {
                 ui.horizontal(|ui| {
                     ui.label("button1");

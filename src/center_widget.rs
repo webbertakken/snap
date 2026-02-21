@@ -23,7 +23,7 @@ impl Widget {
 
             //the show method for a frame returns an InnerResponse<R> type where R is any data we want
             //however were not interested in that, so here R is '()' (called unit, it's like void in C)
-            let frame_response = egui::Frame::none().show(ui, add_contents);
+            let frame_response = egui::Frame::NONE.show(ui, add_contents);
 
             //in the InnerResponse we can retrive a 'egui::Rect' type which describes
             //the area of the screen that frame takes up, but we just want the size :P

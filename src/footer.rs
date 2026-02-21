@@ -27,7 +27,7 @@ impl super::View for Footer {
 
             ui.centered_and_justified(|ui| {
                 ui.horizontal(|ui| {
-                    for i in vec!["🖊️", "✒️", "✏️"] {
+                    for i in ["🖊️", "✒️", "✏️"] {
                         if ui.add(color_button(i, Color32::from_gray(8))).clicked() {
                             println!("Tool {}  chosen", i);
                         }
@@ -36,9 +36,8 @@ impl super::View for Footer {
                     ui.separator();
 
                     for i in 0..10 {
-                        let id = format!("");
                         let color = self.palette.get_color(i).unwrap();
-                        if ui.add(color_button(&id, color)).clicked() {
+                        if ui.add(color_button("", color)).clicked() {
                             println!("Picked colour {}", i)
                         }
 
