@@ -1,5 +1,7 @@
 use egui::{Color32, Pos2};
 
+use crate::history::History;
+
 /// All available drawing/interaction tools.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Tool {
@@ -83,6 +85,10 @@ pub struct AppState {
     pub current_stroke: Option<Vec<Pos2>>,
     /// Text annotation currently being edited on the canvas.
     pub editing_text: Option<TextEdit>,
+    /// Undo/redo history for canvas operations.
+    pub history: History,
+    /// Drag start position (normalised 0..1) for shape tools.
+    pub shape_start: Option<Pos2>,
 }
 
 impl Default for AppState {
@@ -94,6 +100,8 @@ impl Default for AppState {
             objects: Vec::new(),
             current_stroke: None,
             editing_text: None,
+            history: History::new(),
+            shape_start: None,
         }
     }
 }
