@@ -53,7 +53,7 @@ pub fn hit_test(object: &DrawObject, pos: Pos2) -> bool {
 }
 
 /// Minimum distance from a point to a polyline (sequence of connected segments).
-fn distance_to_polyline(point: Pos2, polyline: &[Pos2]) -> f32 {
+pub fn distance_to_polyline(point: Pos2, polyline: &[Pos2]) -> f32 {
     if polyline.is_empty() {
         return f32::MAX;
     }
@@ -68,7 +68,7 @@ fn distance_to_polyline(point: Pos2, polyline: &[Pos2]) -> f32 {
 }
 
 /// Minimum distance from a point to a line segment.
-fn distance_to_segment(point: Pos2, a: Pos2, b: Pos2) -> f32 {
+pub fn distance_to_segment(point: Pos2, a: Pos2, b: Pos2) -> f32 {
     let ab = b - a;
     let ap = point - a;
     let len_sq = ab.length_sq();

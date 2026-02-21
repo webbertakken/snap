@@ -11,6 +11,7 @@ mod eraser;
 mod footer;
 mod header;
 mod palette;
+mod selection;
 mod state;
 
 fn main() -> eframe::Result {

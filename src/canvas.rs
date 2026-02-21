@@ -1,6 +1,7 @@
 use egui::*;
 
 use crate::eraser;
+use crate::selection;
 use crate::state::{AppState, DrawObject, Tool};
 
 pub struct Canvas;
@@ -11,7 +12,12 @@ impl Canvas {
     }
 
     fn ui_content(&self, ui: &mut Ui, state: &mut AppState) -> egui::Response {
-        let (mut response, painter) = ui.allocate_painter(ui.available_size(), Sense::drag());
+        let sense = if state.active_tool == Tool::Selection {
+            Sense::click_and_drag()
+        } else {
+            Sense::drag()
+        };
+        let (mut response, painter) = ui.allocate_painter(ui.available_size(), sense);
 
         let to_screen = emath::RectTransform::from_to(
             Rect::from_min_size(Pos2::ZERO, response.rect.square_proportions()),
@@ -25,6 +31,9 @@ impl Canvas {
             }
             Tool::Eraser => {
                 self.handle_eraser_input(&response, state, &from_screen);
+            }
+            Tool::Selection => {
+                selection::handle_selection_input(&response, state, &from_screen, ui.ctx());
             }
             _ => {}
         }
@@ -46,6 +55,11 @@ impl Canvas {
                     Stroke::new(state.stroke_width, state.active_colour),
                 ));
             }
+        }
+
+        // Draw selection bounding box
+        if state.active_tool == Tool::Selection {
+            selection::draw_selection_box(&painter, state, &to_screen);
         }
 
         // Draw eraser cursor
