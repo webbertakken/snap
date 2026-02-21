@@ -36,6 +36,8 @@ targets = [
 ]
 # PR checks run plan-only to catch issues early
 pr-run-mode = "plan"
+# release-please creates the GitHub Release; cargo-dist only uploads artifacts
+create-release = false
 
 # Linux system dependencies for egui/eframe + xcap
 [workspace.metadata.dist.dependencies.apt]
