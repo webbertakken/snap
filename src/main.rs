@@ -7,9 +7,11 @@ use egui::{
 
 mod canvas;
 mod center_widget;
+mod eraser;
 mod footer;
 mod header;
 mod palette;
+mod state;
 
 fn main() -> eframe::Result {
     let native_options = NativeOptions {
@@ -29,18 +31,19 @@ pub trait Widget {
     fn name(&self) -> &'static str;
 
     /// Show windows, etc
-    fn show(&mut self, ctx: &egui::Context);
+    fn show(&mut self, ctx: &egui::Context, state: &mut state::AppState);
 }
 
 pub trait View {
-    /// Render something
-    fn render(&mut self, ui: &mut egui::Ui);
+    /// Render into a panel, with access to shared application state.
+    fn render(&mut self, ui: &mut egui::Ui, state: &mut state::AppState);
 }
 
 struct Snap {
     header: header::Header,
     canvas: canvas::Canvas,
     footer: footer::Footer,
+    state: state::AppState,
 }
 
 impl Snap {
@@ -49,6 +52,7 @@ impl Snap {
             footer: footer::Footer::new(),
             canvas: canvas::Canvas::new(),
             header: header::Header::new(),
+            state: state::AppState::default(),
         }
     }
 
@@ -93,7 +97,7 @@ impl App for Snap {
             .show_separator_line(false)
             .show(ctx, |ui| {
                 ui.centered_and_justified(|ui| {
-                    self.header.render(ui);
+                    self.header.render(ui, &mut self.state);
                 })
             });
 
@@ -102,7 +106,7 @@ impl App for Snap {
             .show_separator_line(false)
             .show(ctx, |ui| {
                 ui.centered_and_justified(|ui| {
-                    self.footer.render(ui);
+                    self.footer.render(ui, &mut self.state);
                 })
             });
 
@@ -111,6 +115,6 @@ impl App for Snap {
             .show_separator_line(false)
             .show(ctx, |ui| ui.label("left"));
 
-        CentralPanel::default().show(ctx, |ui| self.canvas.render(ui));
+        CentralPanel::default().show(ctx, |ui| self.canvas.render(ui, &mut self.state));
     }
 }
