@@ -36,9 +36,8 @@ impl super::View for Footer {
                     ui.separator();
 
                     for i in 0..10 {
-                        let id = String::new();
                         let color = self.palette.get_color(i).unwrap();
-                        if ui.add(color_button(&id, color)).clicked() {
+                        if ui.add(color_button("", color)).clicked() {
                             println!("Picked colour {}", i)
                         }
 

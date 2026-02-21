@@ -27,8 +27,8 @@ impl Palette {
             color4: Color32::from_rgb(0, 102, 0),
             color5: Color32::from_rgb(128, 255, 128),
             // Yellows
-            color7: Color32::from_rgb(255, 153, 0),
             color6: Color32::from_rgb(255, 255, 0),
+            color7: Color32::from_rgb(255, 153, 0),
             // Reds
             color8: Color32::from_rgb(204, 0, 0),
             color9: Color32::from_rgb(255, 0, 0),
