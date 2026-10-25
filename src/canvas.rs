@@ -96,7 +96,7 @@ impl Canvas {
                 painter.circle_stroke(
                     pos,
                     eraser::ERASER_CURSOR_RADIUS,
-                    Stroke::new(1.5, Color32::from_gray(180)),
+                    Stroke::new(1.5_f32, Color32::from_gray(180)),
                 );
             }
         }

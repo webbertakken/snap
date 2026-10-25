@@ -149,7 +149,7 @@ pub fn draw_selection_box(
     let screen_max = *to_screen * padded.max;
     let screen_rect = egui::Rect::from_min_max(screen_min, screen_max);
 
-    let stroke = Stroke::new(1.5, SELECTION_COLOUR);
+    let stroke = Stroke::new(1.5_f32, SELECTION_COLOUR);
     let dash_length = 5.0;
     let gap_length = 4.0;
 
