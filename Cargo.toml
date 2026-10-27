@@ -9,7 +9,7 @@ serde = ["dep:serde", "dep:serde_json", "egui/serde"]
 
 [dependencies]
 arboard = "3"
-dark-light = "2.0.0"
+dark-light = "3.0.0"
 eframe = "0.33.3"
 egui = "0.33.3"
 global-hotkey = "0.7.0"
