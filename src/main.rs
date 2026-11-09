@@ -2,8 +2,7 @@ use std::sync::Arc;
 
 use eframe::{run_native, App, CreationContext, Frame, NativeOptions};
 use egui::{
-    CentralPanel, Context, FontData, FontDefinitions, FontFamily, SidePanel, TopBottomPanel,
-    ViewportCommand,
+    CentralPanel, Context, FontData, FontDefinitions, FontFamily, Panel, Ui, ViewportCommand,
 };
 
 mod canvas;
@@ -121,9 +120,13 @@ impl Snap {
 const MINIMISE_WAIT_FRAMES: u32 = 5;
 
 impl App for Snap {
-    fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
-        // Drive the screenshot capture state machine before rendering UI.
+    /// Runs every frame, including while the window is minimised, where `ui` is not called.
+    fn logic(&mut self, ctx: &Context, _frame: &mut Frame) {
         self.tick_capture(ctx);
+    }
+
+    fn ui(&mut self, ui: &mut Ui, _frame: &mut Frame) {
+        let ctx = &ui.ctx().clone();
 
         // Ctrl+C: copy canvas region to clipboard
         if ctx.input(|i| i.key_pressed(egui::Key::C) && i.modifiers.command) {
@@ -146,10 +149,10 @@ impl App for Snap {
             self.state.history.redo(&mut self.state.objects);
         }
 
-        TopBottomPanel::top("top_panel")
-            .exact_height(64.0)
+        Panel::top("top_panel")
+            .exact_size(64.0)
             .show_separator_line(false)
-            .show(ctx, |ui| {
+            .show(ui, |ui| {
                 ui.centered_and_justified(|ui| {
                     self.header.render(ui, &mut self.state);
                 })
@@ -182,21 +185,21 @@ impl App for Snap {
             }
         }
 
-        TopBottomPanel::bottom("bottom_panel")
-            .exact_height(64.0)
+        Panel::bottom("bottom_panel")
+            .exact_size(64.0)
             .show_separator_line(false)
-            .show(ctx, |ui| {
+            .show(ui, |ui| {
                 ui.centered_and_justified(|ui| {
                     self.footer.render(ui, &mut self.state);
                 })
             });
 
-        SidePanel::left("left_panel")
-            .exact_width(64.0)
+        Panel::left("left_panel")
+            .exact_size(64.0)
             .show_separator_line(false)
-            .show(ctx, |ui| ui.label("left"));
+            .show(ui, |ui| ui.label("left"));
 
-        CentralPanel::default().show(ctx, |ui| self.canvas.render(ui, &mut self.state));
+        CentralPanel::default().show(ui, |ui| self.canvas.render(ui, &mut self.state));
     }
 }
 
