@@ -10,14 +10,14 @@ serde = ["dep:serde", "dep:serde_json", "egui/serde"]
 [dependencies]
 arboard = "3"
 dark-light = "3.0.0"
-eframe = "0.33.3"
-egui = "0.33.3"
-global-hotkey = "0.7.0"
+eframe = "0.37.0"
+egui = "0.37.0"
+global-hotkey = "0.9.0"
 image = "0.25"
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
-rfd = "0.15"
-xcap = "0.8"
+rfd = "0.18"
+xcap = "0.9"
 
 # cargo-dist build profile
 [profile.dist]
