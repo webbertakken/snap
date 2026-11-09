@@ -267,7 +267,7 @@ impl Canvas {
         };
 
         let screen_pos = *to_screen * editing.position;
-        let text_edit_id = Id::new("canvas_text_edit");
+        let text_edit_id = Id::unique("canvas_text_edit");
 
         let area_response = Area::new(text_edit_id)
             .fixed_pos(screen_pos)
@@ -276,7 +276,7 @@ impl Canvas {
                 let te = egui::TextEdit::singleline(&mut editing.content)
                     .font(FontId::proportional(editing.font_size))
                     .text_color(editing.colour)
-                    .frame(false)
+                    .frame(Frame::NONE)
                     .desired_width(200.0)
                     .cursor_at_end(true);
                 let te_response = ui.add(te);
